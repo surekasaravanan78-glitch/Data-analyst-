@@ -1,0 +1,52 @@
+#Registration template in python:
+users = {
+    "abc@example.com": "abc123",
+    "qwe@example.com": "qwe098",
+    "rty@example.com": "rty789",
+    "sdf@example.com": "sdf345",
+    "mnb@example.com": "mnb678"
+}
+
+def sign_in():
+    print("\n--- SIGN IN ---")
+    email = input("Enter email: ")
+    
+    if email not in users:
+        print("Account not found! Please sign up first.")
+        return
+    
+    password = input("Enter password: ")
+    
+    if users[email] == password:
+        print("Login successfully!")
+    else:
+        print("Incorrect Password. Try again!")
+
+def sign_up():
+    print("\n--- SIGN UP ---")
+    email = input("Enter email: ")
+    
+    if email in users:
+        print("Account already exists! Redirecting to sign in...")
+        sign_in()
+        return
+    
+    password = input("Create password: ")
+    users[email] = password
+    print("Account created successfully! Now you can sign in.")
+
+while True:
+    print("\n===== REGISTRATION MENU =====")
+    print("1. Sign Up")
+    print("2. Sign In")
+    print("3. Exit")
+
+    choice = input("Enter choice (1/2/3): ")
+
+    if choice == "1":
+        sign_up()
+    elif choice == "2":
+        sign_in()
+    elif choice == "3":
+        print("Registration process completed. Thank you!")
+        breakRegistration
