@@ -1,0 +1,65 @@
+import pandas as pd
+import numpy as np
+
+# Create student data
+data = {
+    "Student_ID": [1, 2, 3, 4, 5],
+    "Name": ["A", "B", "C", "D", "E"],
+    "Maths": [78, 85, 67, 90, 72],
+    "Science": [80, 88, 70, 92, 75],
+    "English": [75, 82, 68, 89, 74]
+}
+
+# Create DataFrame
+df = pd.DataFrame(data)
+
+print("Student Marks Data")
+print(df)
+
+# Total marks
+df["Total"] = df[["Maths", "Science", "English"]].sum(axis=1)
+
+# Average marks
+df["Average"] = df["Total"] / 3
+
+# Result using apply()
+df["Result"] = df["Average"].apply(lambda x: "Pass" if x >= 50 else "Fail")
+
+print("\nAfter Calculating Total, Average & Result")
+print(df)
+
+# Topper
+topper = df[df["Total"] == df["Total"].max()]
+print("\nTopper Details")
+print(topper)
+
+# Subject-wise average
+print("\nSubject-wise Average Marks")
+print(df[["Maths", "Science", "English"]].mean())
+
+Output:
+Student Marks Data
+   Student_ID Name  Maths  Science  English
+0           1    A     78       80       75
+1           2    B     85       88       82
+2           3    C     67       70       68
+3           4    D     90       92       89
+4           5    E     72       75       74
+
+After Calculating Total, Average & Result
+   Student_ID Name  Maths  Science  English  Total    Average Result
+0           1    A     78       80       75    233  77.666667   Pass
+1           2    B     85       88       82    255  85.000000   Pass
+2           3    C     67       70       68    205  68.333333   Pass
+3           4    D     90       92       89    271  90.333333   Pass
+4           5    E     72       75       74    221  73.666667   Pass
+
+Topper Details
+   Student_ID Name  Maths  Science  English  Total    Average Result
+3           4    D     90       92       89    271  90.333333   Pass
+
+Subject-wise Average Marks
+Maths      78.4
+Science    81.0
+English    77.6
+dtype: float64
