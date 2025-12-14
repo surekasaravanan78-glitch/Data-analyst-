@@ -1,0 +1,116 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Create sample data
+data = {
+    "OrderID": [101, 102, 103, 104, 105],
+    "Customer": ["A", "B", "A", "C", "B"],
+    "OrderDate": ["2024-01-01", "2024-01-03", "2024-01-05", "2024-01-07", "2024-01-09"],
+    "Total": [1000, 1500, 1200, 1800, 1600]
+}
+
+# Create DataFrame
+df = pd.DataFrame(data)
+
+# Convert OrderDate to datetime
+df["OrderDate"] = pd.to_datetime(df["OrderDate"])
+
+print("Original Data")
+print(df)
+
+# Head & Tail
+print("\nFirst 3 rows:")
+print(df.head(3))
+
+print("\nLast 2 rows:")
+print(df.tail(2))
+
+# Columns
+print("\nColumn Names:")
+print(df.columns)
+
+# Info
+print("\nData Info:")
+print(df.info())
+
+# Unique customers
+print("\nUnique Customers Count:")
+print(df["Customer"].nunique())
+
+# Apply discount (20%)
+df["20% Dis"] = df["Total"].apply(lambda x: x * 0.20)
+
+# Final payment
+df["Payment"] = df["Total"] - df["20% Dis"]
+
+print("\nAfter Discount & Payment Calculation:")
+print(df)
+
+# Group by Customer
+grouped = df.groupby("Customer")["Payment"].sum()
+print("\nTotal Payment by Customer:")
+print(grouped)
+
+# Plot
+plt.figure()
+plt.plot(df["OrderDate"], df["Total"])
+plt.xlabel("Order Date")
+plt.ylabel("Total Amount")
+plt.title("Order Date vs Total Amount")
+plt.show()
+
+Output:
+ Original Data
+   OrderID Customer  OrderDate  Total
+0      101        A 2024-01-01   1000
+1      102        B 2024-01-03   1500
+2      103        A 2024-01-05   1200
+3      104        C 2024-01-07   1800
+4      105        B 2024-01-09   1600
+
+First 3 rows:
+   OrderID Customer  OrderDate  Total
+0      101        A 2024-01-01   1000
+1      102        B 2024-01-03   1500
+2      103        A 2024-01-05   1200
+
+Last 2 rows:
+   OrderID Customer  OrderDate  Total
+3      104        C 2024-01-07   1800
+4      105        B 2024-01-09   1600
+
+Column Names:
+Index(['OrderID', 'Customer', 'OrderDate', 'Total'], dtype='object')
+
+Data Info:
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 5 entries, 0 to 4
+Data columns (total 4 columns):
+ #   Column     Non-Null Count  Dtype         
+---  ------     --------------  -----         
+ 0   OrderID    5 non-null      int64         
+ 1   Customer   5 non-null      object        
+ 2   OrderDate  5 non-null      datetime64[ns]
+ 3   Total      5 non-null      int64         
+dtypes: datetime64[ns](1), int64(2), object(1)
+memory usage: 292.0+ bytes
+None
+
+Unique Customers Count:
+3
+
+After Discount & Payment Calculation:
+   OrderID Customer  OrderDate  Total  20% Dis  Payment
+0      101        A 2024-01-01   1000    200.0    800.0
+1      102        B 2024-01-03   1500    300.0   1200.0
+2      103        A 2024-01-05   1200    240.0    960.0
+3      104        C 2024-01-07   1800    360.0   1440.0
+4      105        B 2024-01-09   1600    320.0   1280.0
+
+Total Payment by Customer:
+Customer
+A    1760.0
+B    2480.0
+C    1440.0
+Name: Payment, dtype: float64
