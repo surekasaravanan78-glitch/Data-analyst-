@@ -1,0 +1,78 @@
+import numpy as np
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+from scipy.stats import norm
+from pandas.plotting import scatter_matrix
+
+# 1. Load the dataset
+df = pd.read_csv('statsfinal.csv')
+
+# Drop index column if present
+if 'Unnamed: 0' in df.columns:
+    df = df.drop(columns=['Unnamed: 0'])
+
+# 2. Date Cleaning & Indexing
+# Coerce invalid dates (like 31-09) to NaT and drop them
+df['Date'] = pd.to_datetime(df['Date'], dayfirst=True, errors='coerce')
+df = df.dropna(subset=['Date'])
+df.set_index('Date', inplace=True)
+df = df.sort_index()
+
+# 3. Visualizing Sales Trends (Product 1)
+plt.figure(figsize=(14, 8))
+df['S-P1'].plot(label='Sales P1', color='blue')
+plt.title('Sales Trend for Product 1 (S-P1)')
+plt.ylabel('Sales Value')
+plt.legend()
+plt.savefig('sales_trend_p1.png')
+
+# 4. Rolling Averages (10 & 50 Days)
+df['ra50'] = df['S-P1'].rolling(50).mean()
+df['ra10'] = df['S-P1'].rolling(10).mean()
+
+plt.figure(figsize=(14, 8))
+df['S-P1'].plot(label='Original Sales', alpha=0.3, color='gray')
+df['ra50'].plot(label='50-day Moving Average', linewidth=2, color='red')
+df['ra10'].plot(label='10-day Moving Average', linewidth=2, color='green')
+plt.title('Product 1 Sales with Moving Averages')
+plt.legend()
+plt.savefig('moving_averages_p1.png')
+
+# 5. Log Returns and Distribution Analysis
+df['log_return'] = np.log(df['S-P1']) - np.log(df['S-P1'].shift(1))
+df_clean = df.dropna(subset=['log_return'])
+
+mu = df_clean['log_return'].mean()
+sigma = df_clean['log_return'].std(ddof=1)
+
+# Normal distribution curve for overlay
+density = pd.DataFrame()
+density['x'] = np.linspace(df_clean['log_return'].min(), df_clean['log_return'].max(), 1000)
+density['pdf'] = norm.pdf(density['x'], mu, sigma)
+
+plt.figure(figsize=(15, 8))
+df_clean['log_return'].hist(bins=100, density=True, alpha=0.6, color='skyblue')
+plt.plot(density['x'], density['pdf'], color='red', linewidth=2)
+plt.title(f'Log Return Distribution (mu={mu:.4f}, sigma={sigma:.4f})')
+plt.savefig('log_return_dist.png')
+
+# 6. Correlation Analysis (Scatter Matrix)
+sales_cols = ['S-P1', 'S-P2', 'S-P3', 'S-P4']
+scatter_matrix(df[sales_cols], figsize=(12, 12), alpha=0.2, diagonal='kde')
+plt.suptitle('Correlation Matrix of All Product Sales')
+plt.savefig('scatter_matrix_sales.png')
+
+# 7. Signal Logic (Short vs Long Moving Average)
+df['Signal'] = [1 if df.loc[ei, 'ra10'] > df.loc[ei, 'ra50'] else 0 for ei in df.index]
+df['Sales_Change'] = df['S-P1'].shift(-1) - df['S-P1']
+df['Strategy_Gain'] = [df.loc[ei, 'Sales_Change'] if df.loc[ei, 'Signal'] == 1 else 0 for ei in df.index]
+
+plt.figure(figsize=(14, 6))
+df['Strategy_Gain'].plot(color='green')
+plt.axhline(y=0, color='red', linestyle='--')
+plt.title('Hypothetical Gains based on Moving Average Cross')
+plt.savefig('strategy_gain_plot.png')
+
+# Export analyzed data
+df.to_csv('statsfinal_analyzed.csv')
